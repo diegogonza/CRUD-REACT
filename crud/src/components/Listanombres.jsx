@@ -5,21 +5,41 @@ const Listanombres = () => {
 
     const [nombre, setNombre] = useState('')
     const [listanombres, setListaNombres] = useState([])
-
+    const [modoedicion, setModoEdicion] = useState(false)
+    const [id, setId] = useState('')
+    const [error, setError] = useState(null)
 
     const addNombre = (evento) =>{
         evento.preventDefault()
+        if (!nombre.trim()) {
+            setError('El campo esta vacio')
+            return
+        }
         const nuevoNombre = {
             id: uniqid(),
             tituloNombre: nombre
         }
         setListaNombres([...listanombres, nuevoNombre])
         setNombre('')
+        setError(null)
     }
 
     const deleteNombre = (id) =>{
         const borrarNombre = listanombres.filter( item => item.id !== id)
         setListaNombres(borrarNombre)
+    }
+    const editar = (item)=>{
+        setModoEdicion(true)
+        setNombre(item.tituloNombre)
+        setId(item.id)
+    }
+    const editarNombre = (evento) =>{
+        evento.preventDefault()
+        const NuevoArray = listanombres
+        .map( item => item.id === id ? {id:id, tituloNombre:nombre}: item)
+        setListaNombres(NuevoArray)
+        setModoEdicion(false)
+        setNombre('')
     }
 
 
@@ -39,6 +59,12 @@ const Listanombres = () => {
                                     >
                                         Borrar
                                     </button>
+                                    <button
+                                        className="btn btn-info btn-sm float-end"
+                                        onClick={ ()=> {editar(item)}}
+                                    >
+                                        Editar
+                                    </button>
                                 </li>
                             ) 
                         }
@@ -46,7 +72,7 @@ const Listanombres = () => {
                 </div>
                 <div className="col">
                     <h2>Registrar</h2>
-                    <form onSubmit={(evento) => addNombre(evento)} className="form-group d-grid gap-2">
+                    <form onSubmit={modoedicion ? editarNombre : addNombre} className="form-group d-grid gap-2">
                         <input 
                             onChange={(evento) => {setNombre (evento.target.value)}} 
                             className="form-control" 
@@ -54,8 +80,22 @@ const Listanombres = () => {
                             placeholder="Nombre"
                             value={nombre}
                         />
-                        <input className="btn btn-success btn-block" type="submit" value="Registrar"/>
+                        <input 
+                            className="btn btn-success btn-block" 
+                            type="submit" 
+                            value={modoedicion ? 'EDITAR NOMBRE': 'AGREGAR NOMBRE'}
+                        />
                     </form>
+                    {
+                        error != null ?(
+                            <div className="alert alert-danger">
+                                {error}
+                            </div>
+                        ):
+                            (
+                                <div></div>
+                            )
+                    }
                 </div>
             </div>
         </div>
